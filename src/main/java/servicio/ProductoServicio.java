@@ -1,13 +1,21 @@
+
 package servicio;
 
 import dao.ProductoDAO;
 import interfaces.ProductoDAOInterface;
 import modelo.Producto;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.util.List;
 
 public class ProductoServicio {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ProductoServicio.class);
 
     private final ProductoDAOInterface productoDAO;
 
@@ -33,12 +41,25 @@ public class ProductoServicio {
         );
 
         productoDAO.insertarProducto(producto);
+
+        logger.info(
+                "Producto registrado: ID={}, Nombre={}",
+                producto.getId(),
+                producto.getNombre()
+        );
     }
 
     // LISTAR PRODUCTOS
     public List<Producto> obtenerProductos() throws SQLException {
 
-        return productoDAO.listarProductos();
+        List<Producto> productos = productoDAO.listarProductos();
+
+        logger.info(
+                "Consulta de productos realizada. Registros encontrados: {}",
+                productos.size()
+        );
+
+        return productos;
     }
 
     // BUSCAR PRODUCTO
@@ -46,7 +67,13 @@ public class ProductoServicio {
 
         validarId(id);
 
-        return productoDAO.buscarProducto(id);
+        Producto producto = productoDAO.buscarProducto(id);
+
+        if (producto == null) {
+            logger.warn("Producto no encontrado: ID={}", id);
+        }
+
+        return producto;
     }
 
     // ACTUALIZAR PRODUCTO
@@ -75,6 +102,12 @@ public class ProductoServicio {
         producto.setCategoria(categoria.trim());
 
         productoDAO.actualizarProducto(producto);
+
+        logger.info(
+                "Producto actualizado: ID={}, Nombre={}",
+                producto.getId(),
+                producto.getNombre()
+        );
     }
 
     // ELIMINAR PRODUCTO
@@ -83,10 +116,15 @@ public class ProductoServicio {
         validarId(id);
 
         if (!productoDAO.eliminarProducto(id)) {
+
+            logger.warn("No se encontró el producto para eliminar: ID={}", id);
+
             throw new IllegalArgumentException(
                     "El producto no existe."
             );
         }
+
+        logger.info("Producto eliminado: ID={}", id);
     }
 
     // VALIDAR DATOS
@@ -97,7 +135,7 @@ public class ProductoServicio {
             String categoria
     ) {
 
-        if (nombre == null || nombre.trim().isEmpty()) {
+        if (StringUtils.isBlank(nombre)) {
             throw new IllegalArgumentException(
                     "El nombre del producto es obligatorio."
             );
@@ -115,7 +153,7 @@ public class ProductoServicio {
             );
         }
 
-        if (categoria == null || categoria.trim().isEmpty()) {
+        if (StringUtils.isBlank(categoria)) {
             throw new IllegalArgumentException(
                     "La categoría es obligatoria."
             );
