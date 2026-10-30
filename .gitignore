@@ -1,0 +1,24 @@
+﻿# Maven
+target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Archivos temporales
+out/
+*.log
+*.tmp
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Archivos de bases de datos locales
+*.mv.db
+*.trace.db
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
